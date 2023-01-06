@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 
+	conf "github.com/alibaba/MongoShake/v2/collector/configure"
 	"github.com/alibaba/MongoShake/v2/tunnel/kafka"
 
 	LOG "github.com/vinllen/log4go"
@@ -16,7 +17,15 @@ type KafkaReader struct {
 }
 
 func (tunnel *KafkaReader) Link(replayer []Replayer) error {
-	reader, err := kafka.NewReader(tunnel.address)
+	var reader *kafka.Reader
+	var err error
+	if conf.Options.TunnelKafkaSASL {
+		reader, err = kafka.NewReader(tunnel.address,
+			kafka.WithSASL(conf.Options.TunnelKafkaSASLUser, conf.Options.TunnelKafkaSASLPassword))
+	} else {
+		reader, err = kafka.NewReader(tunnel.address)
+	}
+
 	if err != nil {
 		LOG.Critical("KafkaReader link[%v] create reader error[%v]", tunnel.address, err)
 		return err

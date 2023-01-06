@@ -9,14 +9,15 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/alibaba/MongoShake/v2/collector/configure"
-	"github.com/alibaba/MongoShake/v2/common"
+	conf "github.com/alibaba/MongoShake/v2/collector/configure"
+	utils "github.com/alibaba/MongoShake/v2/common"
 	"github.com/alibaba/MongoShake/v2/tunnel/kafka"
+
+	"os"
+	"strings"
 
 	LOG "github.com/vinllen/log4go"
 	"go.mongodb.org/mongo-driver/bson"
-	"os"
-	"strings"
 )
 
 const (
@@ -54,7 +55,13 @@ func (tunnel *KafkaWriter) Prepare() bool {
 	var writer *kafka.SyncWriter
 	var err error
 	if !unitTestWriteKafkaFlag && conf.Options.IncrSyncTunnelKafkaDebug == "" {
-		writer, err = kafka.NewSyncWriter(conf.Options.TunnelMongoSslRootCaFile, tunnel.RemoteAddr, tunnel.PartitionId)
+		if conf.Options.TunnelKafkaSASL {
+			writer, err = kafka.NewSyncWriter(conf.Options.TunnelMongoSslRootCaFile,
+				tunnel.RemoteAddr, tunnel.PartitionId, kafka.WithSASL(conf.Options.TunnelKafkaSASLUser, conf.Options.TunnelKafkaSASLPassword))
+		} else {
+			writer, err = kafka.NewSyncWriter(conf.Options.TunnelMongoSslRootCaFile,
+				tunnel.RemoteAddr, tunnel.PartitionId)
+		}
 		if err != nil {
 			LOG.Critical("KafkaWriter prepare[%v] create writer error[%v]", tunnel.RemoteAddr, err)
 			return false

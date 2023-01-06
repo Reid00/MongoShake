@@ -31,6 +31,9 @@ type Configuration struct {
 	TunnelAddress                          []string `config:"tunnel.address"`
 	TunnelMessage                          string   `config:"tunnel.message"`
 	TunnelKafkaPartitionNumber             int      `config:"tunnel.kafka.partition_number"` // add v2.4.21
+	TunnelKafkaSASL                        bool     `config:"tunnel.kafka.sasl"`
+	TunnelKafkaSASLUser                    string   `config:"tunnel.kafka.sasl.user"`
+	TunnelKafkaSASLPassword                string   `config:"tunnel.kafka.sasl.password"`
 	TunnelJsonFormat                       string   `config:"tunnel.json.format"`
 	TunnelMongoSslRootCaFile               string   `config:"tunnel.mongo_ssl_root_ca_file"` // add v2.6.2
 	FilterNamespaceBlack                   []string `config:"filter.namespace.black"`

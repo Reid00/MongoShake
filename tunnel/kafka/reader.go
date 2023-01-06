@@ -13,15 +13,17 @@ type Reader struct {
 	messageChannel    chan *Message
 }
 
-func NewReader(address string) (*Reader, error) {
-	// c := NewConfig()
+func NewReader(address string, opts ...Option) (*Reader, error) {
+	c, err := NewConfig("", opts...)
+	if err != nil {
+		return nil, err
+	}
 
 	topic, brokers, err := parse(address)
 	if err != nil {
 		return nil, err
 	}
-
-	consumer, err := sarama.NewConsumer(brokers, nil)
+	consumer, err := sarama.NewConsumer(brokers, c.Config)
 	if err != nil {
 		return nil, err
 	}
